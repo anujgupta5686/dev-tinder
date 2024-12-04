@@ -19,8 +19,16 @@
 - play with routes and route extensions. ex. /hello, /test, /, hello/2, /xyz
 - Install Postman Apps and make a workspace/collection > tes API call
 - Make logic to handle GET. POST, DELETE, PATCH, PUT calls and test them on postman
-- Explore Routing and use of ?, +, (), * in the routing.
-- Use of regex in routing /a/ /.*fly$/
+- Explore Routing and use of ?, +, (), \* in the routing.
+- Use of regex in routing /a/ /.\*fly$/
 - how to reading query params in the routes
 - Reading the dynamic routes.
 
+- Multiple Route handler - play with the code
+- next()
+- next function and error along with res.send();
+  app.use("route",rH,[rH1,rH2],rH3);
+- Difference between app.all() and app.use()
+- What is middleware and why do we need it?
+- Write a dummy auth middleware for the admin 
+- Write a dummy auth middleware for the all user routes, except /user/login 
