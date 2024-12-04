@@ -32,8 +32,8 @@
 - What is middleware and why do we need it?
 - Write a dummy auth middleware for the admin
 - Write a dummy auth middleware for the all user routes, except /user/login
-- Error handling using app.use(err,req,res,next,()=>{
-    
-});
-
-
+- Error handling using app.use("/", (err, req, res, next) => {
+  if (err) {
+  res.status(500).send("Something went wrong");
+  }
+  });
