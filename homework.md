@@ -17,3 +17,5 @@
 - create a remote repository on github
 - push code in the remote repository
 - play with routes and route extensions. ex. /hello, /test, /, hello/2, /xyz
+- Install Postman Apps and make a workspace/collection > tes API call
+- Make logic to handle GET. POST, DELETE, PATCH, PUT calls and test them on postman
