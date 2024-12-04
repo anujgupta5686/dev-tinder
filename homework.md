@@ -30,5 +30,8 @@
   app.use("route",rH,[rH1,rH2],rH3);
 - Difference between app.all() and app.use()
 - What is middleware and why do we need it?
-- Write a dummy auth middleware for the admin 
-- Write a dummy auth middleware for the all user routes, except /user/login 
+- Write a dummy auth middleware for the admin
+- Write a dummy auth middleware for the all user routes, except /user/login
+- Error handling using app.use(err,req,res,next);
+
+

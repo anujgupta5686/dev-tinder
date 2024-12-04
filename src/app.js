@@ -1,18 +1,19 @@
 const express = require("express");
 const app = express();
-const {adminAuth,userAuth}=require("./middlewares/auth");
 // Handle Auth Middleware for Allrequest GET,POST,PUT,PATCH,DELETE
 
-
-app.use("/admin",adminAuth);
-app.get("/admin/getAllData", (req, res) => {
-  res.send("All data fetch successfully")
+app.get("/getUserData", (req, res) => {
+  try {
+    throw new Error("Error is detecting in /getUserData");
+    res.send("User Data Send");
+  } catch (err) {
+    res.status(404).send("Some error contact support team!")
+  }
 });
-app.get("/admin/deleteUser", (req, res) => {
-  res.send("Deleted user");
-});
-app.get("/user",userAuth, (req, res) => {
-  res.send("User Data Send");
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(500).send("Something went wrong");
+  }
 });
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
