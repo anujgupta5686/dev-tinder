@@ -37,3 +37,13 @@
   res.status(500).send("Something went wrong");
   }
   });
+
+- Create a free cluster on mongodb official website (MongoDB Atlas)
+- Install mongoose library
+- Connect you application to the database "Connection-url"/devTinder
+  Call the connectDB function and connect to database before starting application on specific PORT.
+  - Create the userSchema and user Model
+- Create POST /signup API to add daat to the database
+- Push some documents using API call from postman
+- Make sure when make API then wrap all code inside the try catch block. It's very easy to detect any error during the data insertion.
+- Error handling using try catch
