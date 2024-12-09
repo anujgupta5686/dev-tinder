@@ -9,7 +9,17 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.post("/signup", async (req, res) => {
   try {
-    const { firstName, lastName, emailId, password, age, gender,skills,about,photoUrl } = req.body;
+    const {
+      firstName,
+      lastName,
+      emailId,
+      password,
+      age,
+      gender,
+      skills,
+      about,
+      photoUrl,
+    } = req.body;
 
     // Validate request body
     if (!firstName || !emailId || !password || !age || !gender) {
@@ -41,7 +51,7 @@ app.post("/signup", async (req, res) => {
       gender,
       skills,
       about,
-      photoUrl
+      photoUrl,
     });
 
     // Save user to database
@@ -126,9 +136,6 @@ app.put("/user/:userId", async (req, res) => {
     const { userId } = req.params;
     const updatedData = req.body;
 
-    console.log("Updated Data:", updatedData);
-    console.log("User ID:", userId);
-
     // Validate userId
     if (!mongoose.isValidObjectId(userId)) {
       return res.status(400).json({
@@ -137,19 +144,68 @@ app.put("/user/:userId", async (req, res) => {
       });
     }
 
+    const ALLOWED_UPDATE = ["photoUrl", "about", "gender", "age", "skills"];
+    const SKILL_LIMIT = 5;
+
+    // Validate update fields
+    const isUpdateAllowed = Object.keys(updatedData).every((key) => {
+      if (!ALLOWED_UPDATE.includes(key)) return false;
+
+      if (key === "skills") {
+        const skills = updatedData.skills;
+
+        // Check if skills is an array
+        if (!Array.isArray(skills)) {
+          throw new Error("Skills must be an array.");
+        }
+
+        // Normalize skills (convert to lowercase)
+        const normalizedSkills = skills.map((skill) => skill.toLowerCase());
+
+        // Check for duplicates
+        const uniqueSkills = new Set(normalizedSkills);
+        if (uniqueSkills.size !== normalizedSkills.length) {
+          throw new Error(
+            "Duplicate values (case-insensitive) are not allowed in skills."
+          );
+        }
+
+        // Check if the skills array exceeds the limit
+        if (skills.length > SKILL_LIMIT) {
+          throw new Error(
+            `Skills array should have a maximum of ${SKILL_LIMIT} items.`
+          );
+        }
+
+        // Overwrite updatedData.skills with normalized skills
+        updatedData.skills = Array.from(uniqueSkills);
+      }
+
+      return true;
+    });
+
+    if (!isUpdateAllowed) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid update fields.",
+      });
+    }
+
     // Update user data
     const userData = await User.findByIdAndUpdate(
       userId,
       { $set: updatedData }, // Set the fields to update
-      { new: true }, // Return updated document and validate updates
-      {runValidators: true}
+      {
+        new: true, // Return updated document
+        runValidators: true, // Validate fields during update
+      }
     );
 
     // Check if user exists
     if (!userData) {
       return res.status(404).json({
         status: false,
-        message: "Data not found using This UserID, Please once chech user Id.",
+        message: "User not found. Please check the user ID.",
       });
     }
 
@@ -204,8 +260,6 @@ app.delete("/user/:userId", async (req, res) => {
     });
   }
 });
-
-
 
 // Database connection call
 database()

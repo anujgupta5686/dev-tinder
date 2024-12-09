@@ -67,3 +67,6 @@ Make your signup API dynamic to receive data from the postman/end user
 for gender. 
 - Improve the DB schema - PUT all appropiate validations on each field un schema.
 - Add timestamp to the user Schema
+- Add API level validation on PATCH and PUT Request and Signup Post API.
+- Add API validation for each field.
+- Data Sanitization - Add API validation for each.
