@@ -9,10 +9,10 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.post("/signup", async (req, res) => {
   try {
-    const { firstName, lastName, emailId, password, age, gender } = req.body;
+    const { firstName, lastName, emailId, password, age, gender,skills,about,photoUrl } = req.body;
 
     // Validate request body
-    if (!firstName || !lastName || !emailId || !password || !age || !gender) {
+    if (!firstName || !emailId || !password || !age || !gender) {
       return res.status(400).json({
         status: false,
         message: "All fields are required",
@@ -39,12 +39,15 @@ app.post("/signup", async (req, res) => {
       password: hashedPassword,
       age,
       gender,
+      skills,
+      about,
+      photoUrl
     });
 
     // Save user to database
     const savedData = await user.save();
 
-    return res.status(201).json({
+    return res.status(200).json({
       status: true,
       message: "User registered successfully",
       data: savedData,
@@ -138,7 +141,8 @@ app.put("/user/:userId", async (req, res) => {
     const userData = await User.findByIdAndUpdate(
       userId,
       { $set: updatedData }, // Set the fields to update
-      { new: true } // Return updated document and validate updates
+      { new: true }, // Return updated document and validate updates
+      {runValidators: true}
     );
 
     // Check if user exists

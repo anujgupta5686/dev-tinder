@@ -60,3 +60,10 @@ Make your signup API dynamic to receive data from the postman/end user
 - Explore the Mongoose Documents for Model methods.
 - What are option in a model.findOneAndUpdate method, Explore more about it. 
 - API - Update the user with email ID.
+- Explore schema types options from the documentation
+- Add required, unique, lowercase, minLength, trim.
+- Add default value.
+- Create custorm validate function
+for gender. 
+- Improve the DB schema - PUT all appropiate validations on each field un schema.
+- Add timestamp to the user Schema
