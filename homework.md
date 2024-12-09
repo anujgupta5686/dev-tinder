@@ -70,3 +70,4 @@ for gender.
 - Add API level validation on PATCH and PUT Request and Signup Post API.
 - Add API validation for each field.
 - Data Sanitization - Add API validation for each.
+- Install Joi Library and use Email,Password and URL validation. 
