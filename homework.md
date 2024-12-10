@@ -75,3 +75,5 @@ for gender.
 - Validate data in signup API 
 - Install bcrypt package
 - create a password hash using bcrypt.hash and save the user with encrypted password.
+- Create Login API.
+- Compare password and throw errors of email or password is invalid.
