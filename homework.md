@@ -71,3 +71,7 @@ for gender.
 - Add API validation for each field.
 - Data Sanitization - Add API validation for each.
 - Install Joi Library and use Email,Password and URL validation. 
+
+- Validate data in signup API 
+- Install bcrypt package
+- create a password hash using bcrypt.hash and save the user with encrypted password.
