@@ -1,13 +1,17 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+const auth = require("./middlewares/authentication");
 const app = express();
 require("dotenv").config();
 const mongoose = require("mongoose");
 const database = require("./config/database");
 const User = require("./models/user");
 const PORT = process.env.PORT || 4000;
+const SECRET_KEY = process.env.SECRET_KEY;
 app.use(express.json());
+app.use(cookieParser());
 app.post("/signup", async (req, res) => {
   try {
     const {
@@ -95,11 +99,26 @@ app.post("/login", async (req, res) => {
       checkExistingUser.password
     );
     if (isMatchPassword) {
-      return res.status(200).json({
-        status: true,
-        message: "Login successful",
-        data: checkExistingUser,
-      });
+      const token = jwt.sign(
+        { userId: checkExistingUser._id, email: checkExistingUser.emailId },
+        SECRET_KEY,
+        {
+          expiresIn: "24h",
+        }
+      );
+      checkExistingUser.password = undefined;
+      return res
+        .cookie("token", token, {
+          httpOnly: true,
+          expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        })
+        .status(200)
+        .json({
+          status: true,
+          message: "Login successful",
+          token: token,
+          data: checkExistingUser,
+        });
     } else {
       return res.status(401).json({
         status: false,
@@ -140,19 +159,16 @@ app.get("/feed", async (req, res) => {
   }
 });
 // Get single user from the database using req.params.
-app.get("/user/:userId/:name", async (req, res) => {
+app.get("/user", auth, async (req, res) => {
   try {
-    const { userId, name } = req.params;
-    if (!mongoose.isValidObjectId(userId)) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid user ID",
-      });
-    }
-    const user = await User.findOne({
-      _id: userId,
-      $or: [{ firstName: name }, { lastName: name }],
-    });
+    const { userId } = req.user;
+    // if (!mongoose.isValidObjectId(userId)) {
+    //   return res.status(400).json({
+    //     status: false,
+    //     message: "Invalid user ID",
+    //   });
+    // }
+    const user = await User.findOne({ _id: userId });
     if (!user) {
       return res.status(404).json({
         status: false,
@@ -165,7 +181,7 @@ app.get("/user/:userId/:name", async (req, res) => {
       user,
     });
   } catch (err) {
-    console.error("Error during fetching profile:", error.message);
+    console.error("Error during fetching profile:", err.message);
     return res.status(500).json({
       status: false,
       message: "Something went wrong while fetching profile",
@@ -174,18 +190,19 @@ app.get("/user/:userId/:name", async (req, res) => {
   }
 });
 // Update data using user id
-app.put("/user/:userId", async (req, res) => {
+app.put("/user", auth, async (req, res) => {
   try {
-    const { userId } = req.params;
+    // const { userId } = req.params;
+    const { userId } = req.user;
     const updatedData = req.body;
 
     // Validate userId
-    if (!mongoose.isValidObjectId(userId)) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid user ID",
-      });
-    }
+    // if (!mongoose.isValidObjectId(userId)) {
+    //   return res.status(400).json({
+    //     status: false,
+    //     message: "Invalid user ID",
+    //   });
+    // }
 
     const ALLOWED_UPDATE = [
       "photoUrl",
@@ -274,15 +291,15 @@ app.put("/user/:userId", async (req, res) => {
 });
 
 // Delete specific profile
-app.delete("/user/:userId", async (req, res) => {
+app.delete("/user", auth, async (req, res) => {
   try {
-    const { userId } = req.params;
-    if (!mongoose.isValidObjectId(userId)) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid user ID",
-      });
-    }
+    const { userId } = req.user;
+    // if (!mongoose.isValidObjectId(userId)) {
+    //   return res.status(400).json({
+    //     status: false,
+    //     message: "Invalid user ID",
+    //   });
+    // }
     // Validate userId
     const data = await User.findById(userId);
     if (!data) {
