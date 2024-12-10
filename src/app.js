@@ -1,5 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const app = express();
 require("dotenv").config();
 const mongoose = require("mongoose");
@@ -72,6 +73,48 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+// Login API
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    if (!emailId || !password) {
+      return res.status(400).json({
+        status: false,
+        message: "All fields are required",
+      });
+    }
+    const checkExistingUser = await User.findOne({ emailId: emailId });
+    if (!checkExistingUser) {
+      return res.status(404).json({
+        status: false,
+        message: "Invalid credentials",
+      });
+    }
+    const isMatchPassword = await bcrypt.compare(
+      password,
+      checkExistingUser.password
+    );
+    if (isMatchPassword) {
+      return res.status(200).json({
+        status: true,
+        message: "Login successful",
+        data: checkExistingUser,
+      });
+    } else {
+      return res.status(401).json({
+        status: false,
+        message: "Invalid credentials",
+      });
+    }
+  } catch (err) {
+    console.error("Error during login:", err.message);
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong during login",
+      error: err.message,
+    });
+  }
+});
 // Get all the user from the database
 app.get("/feed", async (req, res) => {
   try {
@@ -144,7 +187,14 @@ app.put("/user/:userId", async (req, res) => {
       });
     }
 
-    const ALLOWED_UPDATE = ["photoUrl", "about", "gender", "age", "skills"];
+    const ALLOWED_UPDATE = [
+      "photoUrl",
+      "about",
+      "gender",
+      "age",
+      "skills",
+      "password",
+    ];
     const SKILL_LIMIT = 5;
 
     // Validate update fields
@@ -191,17 +241,15 @@ app.put("/user/:userId", async (req, res) => {
       });
     }
 
-    // Update user data
     const userData = await User.findByIdAndUpdate(
       userId,
-      { $set: updatedData }, // Set the fields to update
+      { $set: updatedData },
       {
-        new: true, // Return updated document
-        runValidators: true, // Validate fields during update
+        new: true,
+        runValidators: true,
       }
     );
 
-    // Check if user exists
     if (!userData) {
       return res.status(404).json({
         status: false,
