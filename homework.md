@@ -94,4 +94,4 @@ for gender.
 - Create POST Logout /logout API and tested
 - Create PATCH /profile/edit
 - Forget Password API.
-- Validate all data in every HTTP Method.
+- Validate all data in every HTTP Methods.
