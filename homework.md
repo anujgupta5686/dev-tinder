@@ -77,3 +77,13 @@ for gender.
 - create a password hash using bcrypt.hash and save the user with encrypted password.
 - Create Login API.
 - Compare password and throw errors of email or password is invalid.
+- install cookie-parcer.
+- install jsonwebtoken.
+- Create GET /user API and check if you get the cookie back [res.user=decode] in auth.js
+- In login API, After email and password validation, create a JWT token and send it to user.
+- read the cookies inside the user api and find the looged in.
+- write auth middleware
+- Add the user auth middlware in user api and send connection requestion.
+- Set the expiry of JWT token and cookies to 7 days. 
+
+
