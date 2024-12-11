@@ -95,3 +95,14 @@ for gender.
 - Create PATCH /profile/edit
 - Forget Password API.
 - Validate all data in every HTTP Methods.
+- Create Connection Request Schema.
+- Send connection request API
+- Proper validation of data.
+- Think about all corner cases.
+- $or query $and query - https://www.mongodb.com/docs/manual/reference/operator/query/eq/
+- Read About of Schema.pre("save", function(){...});
+
+- Read more about index in mongodb
+- Why do we need index in DB?
+- What is the advantages and disadvantages creating index.
+- Read the this article about compond index - https://www.mongodb.com/docs/manual/core/indexes/index-types/index-compound/

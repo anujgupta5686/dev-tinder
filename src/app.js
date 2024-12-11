@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const appRoute=require("./routes/userAuth");
+const appRequest=require("./routes/request");
 const app = express();
 const database = require("./config/database");
 require("dotenv").config();
@@ -10,6 +11,7 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/v1",appRoute);
+app.use("/api",appRequest);
 database()
   .then(() => {
     console.log(
