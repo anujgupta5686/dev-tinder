@@ -85,5 +85,5 @@ for gender.
 - write auth middleware
 - Add the user auth middlware in user api and send connection requestion.
 - Set the expiry of JWT token and cookies to 7 days. 
-
-
+- Create userSchema methods to getJWT()
+- create userSchema methods to validatePassword(passwordInputByUser);

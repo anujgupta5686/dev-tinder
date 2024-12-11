@@ -1,8 +1,5 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
-const SECRET_KEY = process.env.SECRET_KEY;
 // signup
 exports.signup = async (req, res) => {
   try {
@@ -86,18 +83,9 @@ exports.login = async (req,res) => {
         message: "Invalid credentials",
       });
     }
-    const isMatchPassword = await bcrypt.compare(
-      password,
-      checkExistingUser.password
-    );
+    const isMatchPassword = await checkExistingUser.validatePassword(password)
     if (isMatchPassword) {
-      const token = jwt.sign(
-        { userId: checkExistingUser._id, email: checkExistingUser.emailId },
-        SECRET_KEY,
-        {
-          expiresIn: "3d",
-        }
-      );
+      const token = await checkExistingUser.getJWT();
       checkExistingUser.password = undefined;
       return res
         .cookie("token", token, {
