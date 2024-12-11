@@ -87,3 +87,11 @@ for gender.
 - Set the expiry of JWT token and cookies to 7 days. 
 - Create userSchema methods to getJWT()
 - create userSchema methods to validatePassword(passwordInputByUser);
+
+- Explore tinder APIs
+- Create a list all API you can think of in Dev Tinder
+- Group multiple router under repective routers.
+- Create POST Logout /logout API and tested
+- Create PATCH /profile/edit
+- Forget Password API.
+- Validate all data in every HTTP Method.

@@ -13,7 +13,6 @@ exports.auth = async (req, res, next) => {
       const decode = jwt.verify(token, secret_key);
       const { userId } = decode;
       const user = await User.findById(userId);
-      console.log("Data::", user);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }

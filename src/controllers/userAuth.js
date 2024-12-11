@@ -67,7 +67,7 @@ exports.signup = async (req, res) => {
 };
 
 // Login
-exports.login = async (req,res) => {
+exports.login = async (req, res) => {
   try {
     const { emailId, password } = req.body;
     if (!emailId || !password) {
@@ -83,7 +83,7 @@ exports.login = async (req,res) => {
         message: "Invalid credentials",
       });
     }
-    const isMatchPassword = await checkExistingUser.validatePassword(password)
+    const isMatchPassword = await checkExistingUser.validatePassword(password);
     if (isMatchPassword) {
       const token = await checkExistingUser.getJWT();
       checkExistingUser.password = undefined;
@@ -115,3 +115,19 @@ exports.login = async (req,res) => {
   }
 };
 
+exports.logout = async (req, res) => {
+  try {
+    res.clearCookie("token");
+    return res.status(200).json({
+      status: true,
+      message: "Logged out successfully",
+    });
+  } catch (err) {
+    console.error("Error during logout:", err.message);
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong during logout",
+      error: err.message,
+    });
+  }
+};

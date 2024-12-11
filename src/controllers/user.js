@@ -61,6 +61,8 @@ exports.updateUser = async (req, res) => {
   try {
     // const { userId } = req.params;
     const { userId } = req.user;
+    const loggedInUser= req.user;
+    console.log('loggedInUser', loggedInUser)
     const updatedData = req.body;
 
     // Validate userId
