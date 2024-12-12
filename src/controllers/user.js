@@ -1,195 +1,124 @@
-const User = require("../models/user");
-// Feed data/ get all users.
+const connectionRequest = require("../models/connectionRequest");
+const ConnectionRequest = require("../models/connectionRequest");
+const User = require("../models/user.js");
+const USER_SAFE_DATA = "firstName lastName age gender skills photoUrl";
+exports.requestReceive = async (req, res) => {
+  try {
+    // check user is logged in
+    const { userId } = req.user;
+    const connectionRequest = await ConnectionRequest.find({
+      toUserId: userId,
+      status: "interested",
+    })
+      .populate("fromUserId", "firstName lastName about gender skills age")
+      // }).populate("fromUserId",["firstName","lastName"])
+      .exec();
+    if (connectionRequest.length === 0) {
+      return res.status(401).json({
+        status: true,
+        message: "No connections found",
+      });
+    }
+    return res.status(200).json({
+      requests: connectionRequest.length,
+      status: true,
+      message: "Connections fetched successfully",
+      connections: connectionRequest,
+    });
+  } catch (err) {
+    console.error("Error fetching user connections:", err.message);
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong while fetching user connections",
+      error: err.message,
+    });
+  }
+};
+
+exports.userConnections = async (req, res) => {
+  try {
+    //check loggedIn user
+    const { userId } = req.user;
+    // Aman => Anuj => accepted
+    // Anuj => Sadhana => accepted
+    const connectionRequests = await connectionRequest
+      .find({
+        $or: [
+          { toUserId: userId, status: "accepted" },
+          { fromUserId: userId, status: "accepted" },
+        ],
+      })
+      .populate("fromUserId", USER_SAFE_DATA)
+      .populate("toUserId", USER_SAFE_DATA)
+      .exec();
+    const data = connectionRequests.map((row) => {
+      if (row.fromUserId._id.toString() === userId.toString()) {
+        return row.toUserId;
+      }
+      return row.fromUserId;
+    });
+    return res.json({
+      number_of_connections: data.length,
+      connections: data,
+      status: true,
+      message: "Connections fetched successfully",
+    });
+  } catch (err) {
+    console.error("Error fetching user connections:", err.message);
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong while fetching user connections",
+      error: err.message,
+    });
+  }
+};
+
 exports.feed = async (req, res) => {
   try {
-    const data = await User.find({});
-    if (!data) {
-      return res.status(404).json({
-        status: false,
-        message: "No user found",
-      });
-    }
-    return res.status(200).json({
-      status: true,
-      message: "User data fetched successfully",
-      data,
-    });
-  } catch (err) {
-    console.error("Error during fetching profile:", error.message);
-    return res.status(500).json({
-      status: false,
-      message: "Something went wrong while fetching profile",
-      error: err.message,
-    });
-  }
-};
+    // User should see all the user cards except
+    // 0. His own card
+    // 1. His connection
+    // 2. ignored peaple.
+    // 4. Already send the connection request.
+    // Example : Rahul = [Mark,Donald, MS Dhoni, Virat]
+    // R -> Anuj, R-> Elon
+    // R-> Anuj --> rejected  R-> Elon -> accepted
+    // Elon -> Elon see everyone but not see Rahul. because he is accepted and became friends to each other.
+    // Anuj feed should not show Rahul because Rahul have ignored Anuj request.
 
-// Get Single user
-exports.getUser = async (req, res) => {
-  try {
+    // LoggedIn User ->
     const { userId } = req.user;
-    // if (!mongoose.isValidObjectId(userId)) {
-    //   return res.status(400).json({
-    //     status: false,
-    //     message: "Invalid user ID",
-    //   });
-    // }
-    const user = await User.findOne({ _id: userId });
-    if (!user) {
-      return res.status(404).json({
-        status: false,
-        message: "User not found",
-      });
-    }
+    // Find all connection request (send + received)
+    const connectionRequests = await connectionRequest
+      .find({
+        $or: [{ fromUserId: userId }, { toUserId: userId }],
+      })
+      .select("fromUserId toUserId");
+    // .populate("fromUserId", "firstName")
+    // .populate("toUserId", "firstName");
+    const hideUserFromFeed = new Set();
+    connectionRequests.forEach((req) => {
+      hideUserFromFeed.add(req.fromUserId.toString());
+      hideUserFromFeed.add(req.toUserId.toString());
+    });
+    // console.log("Hide::", hideUserFromFeed);
+    const user = await User.find({
+      $and: [
+        { _id: { $nin: Array.from(hideUserFromFeed) } },
+        { _id: { $ne: userId } },
+      ],
+    }).select(USER_SAFE_DATA);
     return res.status(200).json({
+      
       status: true,
-      message: "Single User fetched successfully",
-      user,
+      message: "User feed fetched successfully",
+      users: user,
     });
   } catch (err) {
-    console.error("Error during fetching profile:", err.message);
+    console.error("Error fetching user feed:", err.message);
     return res.status(500).json({
       status: false,
-      message: "Something went wrong while fetching profile",
-      error: err.message,
-    });
-  }
-};
-
-// Update user
-exports.updateUser = async (req, res) => {
-  try {
-    // const { userId } = req.params;
-    const { userId } = req.user;
-    const loggedInUser= req.user;
-    console.log('loggedInUser', loggedInUser)
-    const updatedData = req.body;
-
-    // Validate userId
-    // if (!mongoose.isValidObjectId(userId)) {
-    //   return res.status(400).json({
-    //     status: false,
-    //     message: "Invalid user ID",
-    //   });
-    // }
-
-    const ALLOWED_UPDATE = [
-      "photoUrl",
-      "about",
-      "gender",
-      "age",
-      "skills",
-      "password",
-    ];
-    const SKILL_LIMIT = 5;
-
-    // Validate update fields
-    const isUpdateAllowed = Object.keys(updatedData).every((key) => {
-      if (!ALLOWED_UPDATE.includes(key)) return false;
-
-      if (key === "skills") {
-        const skills = updatedData.skills;
-
-        // Check if skills is an array
-        if (!Array.isArray(skills)) {
-          throw new Error("Skills must be an array.");
-        }
-
-        // Normalize skills (convert to lowercase)
-        const normalizedSkills = skills.map((skill) => skill.toLowerCase());
-
-        // Check for duplicates
-        const uniqueSkills = new Set(normalizedSkills);
-        if (uniqueSkills.size !== normalizedSkills.length) {
-          throw new Error(
-            "Duplicate values (case-insensitive) are not allowed in skills."
-          );
-        }
-
-        // Check if the skills array exceeds the limit
-        if (skills.length > SKILL_LIMIT) {
-          throw new Error(
-            `Skills array should have a maximum of ${SKILL_LIMIT} items.`
-          );
-        }
-
-        // Overwrite updatedData.skills with normalized skills
-        updatedData.skills = Array.from(uniqueSkills);
-      }
-
-      return true;
-    });
-
-    if (!isUpdateAllowed) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid update fields.",
-      });
-    }
-
-    const userData = await User.findByIdAndUpdate(
-      userId,
-      { $set: updatedData },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-
-    if (!userData) {
-      return res.status(404).json({
-        status: false,
-        message: "User not found. Please check the user ID.",
-      });
-    }
-
-    // Success response
-    return res.status(200).json({
-      status: true,
-      message: "User updated successfully",
-      data: userData,
-    });
-  } catch (err) {
-    console.error("Error during updating profile:", err.message);
-    return res.status(500).json({
-      status: false,
-      message: "Something went wrong while updating profile",
-      error: err.message,
-    });
-  }
-};
-
-// Delete delete
-exports.deleteUser = async (req, res) => {
-  try {
-    const { userId } = req.user;
-    // if (!mongoose.isValidObjectId(userId)) {
-    //   return res.status(400).json({
-    //     status: false,
-    //     message: "Invalid user ID",
-    //   });
-    // }
-    // Validate userId
-    const data = await User.findById(userId);
-    if (!data) {
-      return res.status(404).json({
-        status: false,
-        message: "User not found",
-      });
-    }
-    // Delete user data
-    const deletedData = await User.findByIdAndDelete(userId);
-    // Success response
-    return res.status(200).json({
-      status: true,
-      message: "User deleted successfully",
-      data: deletedData,
-    });
-  } catch (err) {
-    console.error("Error during deleting profile:", err.message);
-    return res.status(500).json({
-      status: false,
-      message: "Something went wrong while deleting profile",
+      message: "Something went wrong while fetching user feed",
       error: err.message,
     });
   }

@@ -48,8 +48,8 @@
 - Make sure when make API then wrap all code inside the try catch block. It's very easy to detect any error during the data insertion.
 - Error handling using try catch
 - JS Object vs JSON (Difference)
-Add the express.json middleware to your app
-Make your signup API dynamic to receive data from the postman/end user
+  Add the express.json middleware to your app
+  Make your signup API dynamic to receive data from the postman/end user
 - Make your signup API dynamic to receive data from the end user.
 - User.findOne() with Duplicate email IDs, which object returned.
 - API - Get user by Email ID
@@ -58,21 +58,21 @@ Make your signup API dynamic to receive data from the postman/end user
 - Difference Between PUT and PATCH
 - API - Update a user
 - Explore the Mongoose Documents for Model methods.
-- What are option in a model.findOneAndUpdate method, Explore more about it. 
+- What are option in a model.findOneAndUpdate method, Explore more about it.
 - API - Update the user with email ID.
 - Explore schema types options from the documentation
 - Add required, unique, lowercase, minLength, trim.
 - Add default value.
 - Create custorm validate function
-for gender. 
+  for gender.
 - Improve the DB schema - PUT all appropiate validations on each field un schema.
 - Add timestamp to the user Schema
 - Add API level validation on PATCH and PUT Request and Signup Post API.
 - Add API validation for each field.
 - Data Sanitization - Add API validation for each.
-- Install Joi Library and use Email,Password and URL validation. 
+- Install Joi Library and use Email,Password and URL validation.
 
-- Validate data in signup API 
+- Validate data in signup API
 - Install bcrypt package
 - create a password hash using bcrypt.hash and save the user with encrypted password.
 - Create Login API.
@@ -84,7 +84,7 @@ for gender.
 - read the cookies inside the user api and find the looged in.
 - write auth middleware
 - Add the user auth middlware in user api and send connection requestion.
-- Set the expiry of JWT token and cookies to 7 days. 
+- Set the expiry of JWT token and cookies to 7 days.
 - Create userSchema methods to getJWT()
 - create userSchema methods to validatePassword(passwordInputByUser);
 
@@ -106,3 +106,12 @@ for gender.
 - Why do we need index in DB?
 - What is the advantages and disadvantages creating index.
 - Read the this article about compond index - https://www.mongodb.com/docs/manual/core/indexes/index-types/index-compound/
+
+- Write code with proper validation for POST /request/review/:status/:requestId
+- Thought process - POST vs GET
+- read about ref and populate https://www.geeksforgeeks.org/mongoose-populate-method/
+              - and 
+https://mongoosejs.com/docs/populate.html
+- Create GET /user/requests/receive with all the checks.
+- Create GET /user/connections
+- 

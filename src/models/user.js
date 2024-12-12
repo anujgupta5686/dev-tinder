@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
-const bcrypt=require("bcrypt");
-const jwt=require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const SECRET_KEY=process.env.SECRET_KEY;
+const SECRET_KEY = process.env.SECRET_KEY;
 const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
       required: [true, "First Name is required"],
-      index:true,
+      index: true,
       trim: true,
       minLength: 3,
     },
@@ -62,9 +62,9 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-userSchema.index({firstName:1,lastName:1});
+userSchema.index({ firstName: 1, lastName: 1 });
 userSchema.methods.getJWT = async function () {
-  const user=this;
+  const user = this;
   const token = await jwt.sign(
     { userId: user._id, email: user.emailId },
     SECRET_KEY,
@@ -75,8 +75,8 @@ userSchema.methods.getJWT = async function () {
   return token;
 };
 userSchema.methods.validatePassword = async function (passwordInputByUser) {
-  const user=this;
-  const passwordHash=user.password;
+  const user = this;
+  const passwordHash = user.password;
   const isPasswordValid = await bcrypt.compare(
     passwordInputByUser,
     passwordHash

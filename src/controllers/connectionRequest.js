@@ -69,3 +69,53 @@ exports.connectionRequest = async (req, res) => {
     });
   }
 };
+exports.requestReview = async (req, res) => {
+  try {
+    const loggedInUser = req.user.userId;
+    const { status, requestId } = req.params;
+    // Validate the Status
+    // Anuj => Aman
+    // loggedInId = toUserId;
+    // status = interested
+    // Validate requestId
+    const ALLOWED_STATUS = ["accepted", "rejected"];
+    if (!mongoose.isValidObjectId(requestId)) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid request ID",
+      });
+    }
+    if (!ALLOWED_STATUS.includes(status)) {
+      return res.status(400).json({
+        status: false,
+        message: `Invalid status type :${status}`,
+      });
+    }
+    // Find requestId is present in Database or not
+    const connectionRequestData = await ConnectionRequest.findOne({
+      _id: requestId,
+      toUserId: loggedInUser,
+      status: "interested",
+    });
+    if (!connectionRequestData) {
+      return res.status(404).json({
+        status: false,
+        message: "Connection request not found",
+      });
+    }
+    connectionRequestData.status = status;
+    const data = await connectionRequestData.save();
+    return res.status(200).json({
+      status: true,
+      message: `Connection Request ${status}.`,
+      data: data,
+    });
+  } catch (err) {
+    console.error("Error in connection request:", err.message);
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong while send request.",
+      error: err.message,
+    });
+  }
+};
