@@ -88,6 +88,7 @@ exports.feed = async (req, res) => {
 
     // LoggedIn User ->
     const { userId } = req.user;
+    const page = parseInt(req.params.page);
     // Find all connection request (send + received)
     const connectionRequests = await connectionRequest
       .find({
@@ -109,7 +110,6 @@ exports.feed = async (req, res) => {
       ],
     }).select(USER_SAFE_DATA);
     return res.status(200).json({
-      
       status: true,
       message: "User feed fetched successfully",
       users: user,
