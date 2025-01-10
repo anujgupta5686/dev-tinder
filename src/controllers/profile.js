@@ -6,7 +6,7 @@ exports.profiles = async (req, res) => {
     if (!data) {
       return res.status(404).json({
         status: false,
-        message: "No user found",
+        message: "Empty Collections.",
       });
     }
     return res.status(200).json({

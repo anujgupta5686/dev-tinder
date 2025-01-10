@@ -88,7 +88,10 @@ exports.feed = async (req, res) => {
 
     // LoggedIn User ->
     const { userId } = req.user;
-    const page = parseInt(req.params.page);
+    const page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    limit=limit>50?50:limit;
+    const skip = (page-1)*limit;
     // Find all connection request (send + received)
     const connectionRequests = await connectionRequest
       .find({
@@ -108,8 +111,10 @@ exports.feed = async (req, res) => {
         { _id: { $nin: Array.from(hideUserFromFeed) } },
         { _id: { $ne: userId } },
       ],
-    }).select(USER_SAFE_DATA);
+    }).select(USER_SAFE_DATA).skip(skip).limit(limit);
+    const userSize=user.length;
     return res.status(200).json({
+      userSize,
       status: true,
       message: "User feed fetched successfully",
       users: user,
